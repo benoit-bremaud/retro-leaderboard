@@ -63,9 +63,9 @@ an unproven Free-plan limit.
 7. **Poison runs**: the Worker counts verification attempts per run; a run handed out three times
    without a report becomes `unverifiable` with `verdictAt` set, so one run can never block the
    queue. The verifier pulls one run per request, so an outage costs one attempt to one run only.
-9. Input frames after game over are a `replay-error` (`trailing-frames`): a run carries no frame
+8. Input frames after game over are a `replay-error` (`trailing-frames`): a run carries no frame
    the game did not read.
-10. The verifier runs as a systemd user timer every minute, one replay at a time.
+9. The verifier runs as a systemd user timer every minute, one replay at a time.
 
 ## Consequences
 

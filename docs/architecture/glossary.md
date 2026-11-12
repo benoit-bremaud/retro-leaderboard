@@ -26,7 +26,7 @@ Every domain term used in the conception documents of epic benoit-bremaud/retro-
 | Request guard | A check on `POST /v1/runs` (type, size, schema, allowlist, name, country) that refuses with `400` | ADR-0003 |
 | Run | One finished play session submitted online: game, mode, version, seed, input frames, claimed score, name, optional country | `04-class-data-model.md` |
 | Run codec | The shared module that encodes and decodes a run's input frames, one source of truth for the run format | `03-component.md` |
-| Run digest | SHA-256 of game id, mode, game version, seed and input frames; unique per run | `04-class-data-model.md` |
+| Run digest | SHA-256 of game id, mode, game version, seed and canonical input frames (re-encoded by the run codec); unique per run | `04-class-data-model.md` |
 | Run status | `pending`, `verified`, `rejected`, `unverifiable` or `expired` | `05-state-run.md` |
 | Salted address hash | SHA-256 of the client address and a daily salt HMAC-SHA-256(secret, UTC date); the rate-limit key, never stored | ADR-0003 |
 | Seed | The 32-bit integer that fixes a run's random sequence | retro-shmup ADR-0019 |

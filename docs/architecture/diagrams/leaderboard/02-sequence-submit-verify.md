@@ -48,12 +48,12 @@ sequenceDiagram
     end
 
     loop every minute (systemd timer)
+        loop until 204 no pending run, one run per request
         V->>W: GET /v1/verifier/pending (bearer token)
-        loop until no pending run, one run at a time
         W->>DB: select the oldest pending run, increment its attempts
         Note over W,DB: a run at 3 attempts becomes unverifiable (verdictAt = now) instead
         DB-->>W: run
-        W-->>V: run
+        W-->>V: 200 run, or 204 no pending run
             alt game version installed
                 V->>S: replay(seed, inputs) in a sandboxed child process
                 S-->>V: replayed score, or replay-error
