@@ -1,0 +1,3 @@
+# Paths TruffleHog skips in `just nightly` (one regex per line). This file lists itself: its own
+# wording trips the URI detector once committed.
+^\.trufflehog-exclude$

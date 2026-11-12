@@ -1,0 +1,7 @@
+pnpm-lock.yaml
+coverage/
+.scannerwork/
+.wrangler/
+# Prettier would pad every Markdown table of the ADRs and the log: noise for no reader.
+*.md
+.claude/

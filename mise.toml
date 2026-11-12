@@ -1,0 +1,29 @@
+# Local CI toolchain (skill local-ci): every CLI the justfile tiers and the lefthook hooks call,
+# pinned; `mise.lock` pins the checksums. `just setup` installs it. sonar-scanner stays outside
+# mise (not in the mise registry, skill infra-accounts).
+#
+# Node follows the .nvmrc major and pnpm matches package.json#packageManager, so the hooks run the
+# project's own toolchain whether or not the shell activates mise. Not here, on purpose (rule 1 of
+# the skill): osv-scanner and Trivy (`pnpm audit` audits the lockfile; no Dockerfile), actionlint and
+# zizmor (no workflow), typos (to add with the first prose-heavy brick if needed).
+[tools]
+node = "22"
+pnpm = "10.30.3"
+just = "1.59.0"
+lefthook = "2.2.2"
+shellcheck = "0.11.0"
+gitleaks = "8.30.1"
+trufflehog = "3.99.8"
+jq = "1.8.2" # scripts/test-attest.sh applies the `gh api -q` filter through it
+# Semgrep Community Edition (SAST). pipx backend: the version is pinned, its Python dependencies are
+# resolved at install time (accepted gap).
+"pipx:semgrep" = "1.183.0"
+
+[env]
+# The standalone pnpm binary ships its own CA bundle and refuses the certificate the Aikido
+# safe-chain proxy presents for registry.npmjs.org; the system bundle holds that CA (skill
+# aikido-device-protection).
+NODE_EXTRA_CA_CERTS = "/etc/ssl/certs/ca-certificates.crt"
+
+[settings]
+lockfile = true
