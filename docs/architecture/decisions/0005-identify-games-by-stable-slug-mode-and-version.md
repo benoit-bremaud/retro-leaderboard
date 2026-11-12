@@ -31,7 +31,8 @@ Stability on rename (30), readability in URLs and logs (30), simplicity (25), UR
 3. **Game version**: semantic version `MAJOR.MINOR.PATCH` without pre-release (only tagged
    releases submit; a dev build has no online submission).
 4. **Allowlist**: `src/games.ts` lists each game with its modes, its allowed origins (CORS,
-   ADR-0003), its maximum run length in frames and its accepted versions. Adding a game or a version
+   ADR-0003), its maximum run length in frames (`maxFrames`, which also sets the replay CPU
+   ceiling, ADR-0001) and its accepted versions. Adding a game or a version
    is a pull request through the gate.
 5. Routes use the ids as path segments: `/v1/boards/{game}/{mode}`.
 

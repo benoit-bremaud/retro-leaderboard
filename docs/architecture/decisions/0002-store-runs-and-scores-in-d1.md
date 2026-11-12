@@ -23,14 +23,16 @@ Top-N queries (35), simplicity (25), consistency (20), cost (20).
 
 ## Decision
 
-D1, one database per tier (`retro-leaderboard-staging`, `retro-leaderboard-prod`), schema in
+D1, one database per tier (`retro-leaderboard-staging`, `retro-leaderboard-prod`), created with
+`--jurisdiction=eu` so the data stays in the EU (ADR-0004), schema in
 versioned migrations (`migrations/NNNN_<topic>.sql`, applied by `wrangler d1 migrations apply`).
 Tables and indexes: the class diagram `04-class-data-model.md`. Every query is a prepared statement
 with bound parameters, never string concatenation.
 
 ## Consequences
 
-- Free plan quotas (5 GB, daily read and write limits) are far above the expected volume.
-- D1 is eventually consistent across read replicas: a run verified a second ago may not show yet.
-  Accepted.
+- Free plan quotas (500 MB per database, daily read and write limits) are far above the expected
+  volume; the purge (ADR-0004) keeps it small.
+- Reads go to the primary by default (no read replication enabled): a verdict is visible at once.
+- Duplicate runs are refused by a unique `run_digest` column (`04-class-data-model.md`).
 - Tests run against a local D1 (Miniflare) through the store port; the domain never imports D1.

@@ -23,15 +23,17 @@ classDiagram
         +gameVersion : TEXT  «semver»
         +seed : INTEGER  «uint32, NULL once purged»
         +inputs : BLOB  «encoded frames, NULL once purged»
+        +runDigest : TEXT  «SHA-256 hex, UNIQUE»
         +claimedScore : INTEGER
         +verifiedScore : INTEGER  «NULL until verified»
-        +name : TEXT  «1–8 of A–Z 0–9 space, or ???»
+        +name : TEXT  «1–8 of A–Z 0–9 space, trimmed»
         +country : TEXT  «ISO 3166-1 alpha-2, NULL»
         +status : RunStatus
         +hidden : INTEGER  «0 or 1»
+        +attempts : INTEGER  «verifier pulls, 0..3»
         +deletionTokenHash : TEXT  «SHA-256 hex»
         +submittedAt : INTEGER  «epoch ms»
-        +verdictAt : INTEGER  «NULL until verdict»
+        +verdictAt : INTEGER  «NULL until verdict or expiry»
     }
     class RunStatus {
         <<enumeration>>
@@ -59,9 +61,14 @@ classDiagram
   (UC2): `WHERE status = 'verified' AND hidden = 0 ORDER BY verified_score DESC, verdict_at ASC
   LIMIT 100`. Ties go to the earlier verdict.
 - `runs_pending` on `(status, submitted_at)` — verifier pulls (UC4) and the expiry job.
+- `runs_digest` UNIQUE on `(run_digest)` — refuses a resubmitted run (`409 duplicate-run`).
 
 ## Notes
 
-- `id` is a ULID: unguessable enough for a public id, sortable by time, no counter to leak volume.
+- `id` is a ULID: sortable by time, no counter to leak volume. It is public (board rows carry it);
+  erasure needs the deletion token, not the id.
+- `runDigest` = SHA-256(gameId ‖ mode ‖ gameVersion ‖ seed ‖ inputs): the same run cannot be
+  submitted twice under different names.
 - The monthly board filters `submitted_at` on the current UTC month.
-- Purge (ADR-0004) sets `seed` and `inputs` to NULL; a purged run keeps its board row.
+- Purge (ADR-0004) sets `seed` and `inputs` to NULL and keeps `runDigest`; a purged run keeps its
+  board row until the two-year retention ends.

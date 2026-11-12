@@ -8,14 +8,14 @@
 
 Two deployables: the Worker on Cloudflare (Free plan) and the verifier on the homelab. Inside the
 Worker, the domain (run rules, validation, verdict rules) depends only on ports; the adapters
-bind D1, the rate limiter and the secrets. The verifier reuses the same run codec (shared module
+bind D1, the rate limiter and the secrets (verifier token, `RATE_KEY_SECRET`). The verifier reuses the same run codec (shared module
 in this repository) and loads each game's simulation package by version.
 
 ## Diagram
 
 ```mermaid
 ---
-title: component — Shared leaderboard
+title: cmp — Shared leaderboard
 ---
 flowchart TB
     game["«component» Game client (retro-shmup …)"]
@@ -27,13 +27,13 @@ flowchart TB
         limitPort(["RateLimit port"])
         d1Adapter["D1 adapter"]
         rlAdapter["Rate Limiting binding adapter"]
-        cron["Cron: daily salt rotation, purge, expiry"]
+        cron["Cron: daily purge and expiry"]
     end
     d1[("D1 database")]
     subgraph homelab ["«component» Verifier (homelab, systemd timer)"]
         puller["Pending-run puller"]
-        replayer["Replayer (10 s CPU ceiling)"]
-        sims["Simulation packages by version (@retro/slug-sim@semver)"]
+        replayer["Replayer (sandboxed child process: CPU, memory, wall-clock ceilings, no network)"]
+        sims["Simulations by version (built from signed game tags)"]
     end
 
     game -->|"HTTPS JSON"| http
@@ -57,4 +57,6 @@ flowchart TB
   ports. Tests replace the ports, never the domain.
 - The run codec is the only code shared by the Worker and the verifier: one source of truth for the
   run format (see the retro-shmup client issue for its definition).
-- The verifier never writes to D1 directly: every verdict goes through the Worker's rules.
+- The verifier never writes to D1 directly: every report goes through the Worker, which sets the
+  verdict.
+- Moderation has no component: the owner edits D1 with `wrangler d1 execute` (ADR-0003).

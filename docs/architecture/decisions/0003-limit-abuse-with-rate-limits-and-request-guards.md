@@ -29,17 +29,26 @@ C is rejected outright: the key would ship in the client, so the signature prove
 
 1. **Rate limits** (binding, 60 s window): `POST /v1/runs` 5 per key, read routes 60 per key,
    `DELETE /v1/runs/{id}` 5 per key. Over the limit: `429` with `Retry-After`.
-2. **Key** = SHA-256(client address ‖ daily salt) as hex. The salt is a Worker secret rotated
-   daily by a cron trigger; the address and the hash are never written to storage or logs.
+2. **Key** = SHA-256(client address ‖ daily salt) as hex, with daily salt =
+   HMAC-SHA-256(`RATE_KEY_SECRET`, current UTC date). The secret is a Worker secret rotated yearly;
+   the salt changes every day without any job or storage. The address, the salt and the key are
+   never written to storage or logs.
 3. **Guards on `POST /v1/runs`**: `Content-Type: application/json`, body at most 64 KiB, a strict
    schema (unknown fields refused), game id and mode on the server allowlist (ADR-0005), name and
    country per ADR-0004, input frames within the game's maximum run length. Any violation: `400`
-   with a stable error code, never a stack trace.
-4. **Verifier cost ceiling**: 10 s of CPU per replay (ADR-0001); a run that hits it is `rejected`.
+   with a stable error code, never a stack trace. The body size is checked while reading the
+   stream, not from `Content-Length` alone. A run identical to a stored one (same `runDigest`)
+   answers `409 duplicate-run`.
+4. **Verifier cost ceiling**: a CPU ceiling derived from `maxFrames`, 10 s at most, plus memory
+   and wall-clock ceilings (ADR-0001); a run that hits one is `rejected`.
 5. **Names**: a server-side deny list of offensive words (substring match on the normalised name);
-   the owner can hide any run by its id (`hidden` flag, admin route behind the verifier token).
+   the owner hides any run by its id with `wrangler d1 execute` (sets `hidden = 1`). No admin HTTP
+   route exists, so no admin secret can leak; the verifier token cannot moderate.
 6. **CORS**: only the games' origins (allowlist per game); no credentials.
-7. A challenge widget (Turnstile) is added only by a superseding ADR, after an abuse the
+7. **Logs**: Workers invocation logs are disabled in the Worker configuration
+   (`observability.logs.invoke_logs = false`), so request URLs and headers are never recorded;
+   the code logs run ids and error codes only.
+8. A challenge widget (Turnstile) is added only by a superseding ADR, after an abuse the
    measures above did not stop.
 
 ## Consequences
