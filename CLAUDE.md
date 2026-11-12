@@ -20,7 +20,7 @@ review gate, public by default, security defaults) are inherited from `~/.claude
 ## Non-negotiables (project)
 
 - **Design before code.** A route, a store or a verification rule is implemented only after its
-  UML diagrams (`docs/architecture/diagrams/<feature>/`) and its ADR (`docs/decisions/`) are merged.
+  UML diagrams (`docs/architecture/diagrams/<feature>/`) and its ADR (`docs/architecture/decisions/`) are merged.
 - **Validated decisions are not reopened silently**: a change needs a superseding ADR.
 - **Security policy on every diff** (`security-policy`, `security-ci-baseline`). Every request body
   is untrusted: validated by allowlist, size-capped, parsing never throws. No secret in code or
@@ -35,8 +35,8 @@ review gate, public by default, security defaults) are inherited from `~/.claude
 ## Repository layout
 
 ```
-docs/decisions/     ADRs (Nygard format, NNNN-kebab-title.md)
-docs/architecture/  UML diagrams (Mermaid) and the conception README
+docs/architecture/  conception: README, glossary, traceability matrix,
+                    decisions/ (ADRs, MADR, NNNN-kebab-title.md), diagrams/ (Mermaid)
 src/                Worker source (placeholder until the first brick)
 tests/              Vitest, mirroring src/
 scripts/            local CI scripts (attestation, wiring tests, doc coverage, drift)
