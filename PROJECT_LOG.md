@@ -11,3 +11,31 @@ Chronological operational log of the project, complementing `git log` with the d
 - Bootstrap commit on `main`: local CI per skill `local-ci` (L0–L3, attestation, `just merge`),
   TypeScript strict, Vitest, ESLint, knip, Prettier, SonarQube config, a 501 placeholder Worker.
 - Next: the conception study (use cases, submit/verify sequence, data model, ADRs) in one PR.
+
+## 2026-11-12 — Conception study merged (#1, PR #2, 783317d)
+
+- **PR #2 merged** (`783317d`) — docs(uml): conception study of the shared leaderboard API, branch
+  `docs/1-leaderboard-conception-study`.
+- Owner MCDA decisions (AskUserQuestion in the session, recorded in the ADRs):
+  - `verification` — replay on the homelab, D 365 over Workers Paid A 425: zero recurring cost
+    (owner override, ADR-0001).
+  - `storage` — D1 480 over a Durable Object 395 (ADR-0002).
+  - `abuse` — rate limits + salted hash + guards 465 over adding Turnstile 370 (ADR-0003).
+  - `replay purge` — 90 days except top 100, 445 over plain 90 days 465: re-verification and
+    replay viewing later (owner override, ADR-0004).
+  - `game id` — stable slug + mode + semver 500 over the repository name 410 (ADR-0005).
+  - `lawful basis` — legitimate interest 430 over performance of a service 330 and consent 210
+    (ADR-0004).
+  - `score retention` — two years outside top 100, 420 over two years always 380 (ADR-0004).
+  - `seed` — client-chosen seed risk accepted, 420 over a server-issued seed 285: games stay
+    playable offline (ADR-0001 Consequences, no score recorded there).
+- Agent choices recorded in the ADRs: no admin HTTP route (moderation with `wrangler d1 execute`),
+  simulations built from signed game tags instead of a package registry.
+- Adversarial review (Opus), three rounds: 9 Must → 2 Must → 0 Must; `just gate` green and
+  attested on da64036, merged with `just merge 2`.
+- SonarQube: `~/.config/sonar-tokens/retro-leaderboard` is a symlink to the global analysis token
+  (skill `infra-accounts`); exporting `SONAR_TOKEN` breaks the "no token" wiring test.
+- Follow-ups filed on Project #80 (Todo), sub-issues of retro-shmup#166: retro-shmup#167 (client
+  run recording and "Send online"), #3 submit, #4 D1 store, #5 boards and status, #6 erasure,
+  #7 verifier, #8 security limits, #9 purge cron, #10 allowlist and privacy page, #11 STRIDE threat
+  model.
