@@ -58,11 +58,14 @@ an unproven Free-plan limit.
    it is never shown and its replay data is purged.
 6. **Replay sandbox**: each replay runs in a child process with no token in its environment, a CPU
    ceiling derived from the game's `maxFrames` (ADR-0005; 10 s at most), a wall-clock ceiling of
-   twice that, a memory ceiling (`MemoryMax`) and no network (`IPAddressDeny=any`). Hitting any
+   twice that, a memory ceiling and no network (`systemd-run --user --scope -p MemoryMax=… -p IPAddressDeny=any`). Hitting any
    ceiling or crashing is `replay-error`.
 7. **Poison runs**: the Worker counts verification attempts per run; a run handed out three times
-   without a report becomes `unverifiable`, so one run can never block the queue.
-8. The verifier runs as a systemd user timer every minute, one replay at a time.
+   without a report becomes `unverifiable` with `verdictAt` set, so one run can never block the
+   queue. The verifier pulls one run per request, so an outage costs one attempt to one run only.
+9. Input frames after game over are a `replay-error` (`trailing-frames`): a run carries no frame
+   the game did not read.
+10. The verifier runs as a systemd user timer every minute, one replay at a time.
 
 ## Consequences
 

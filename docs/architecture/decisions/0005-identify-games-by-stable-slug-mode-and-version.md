@@ -39,5 +39,5 @@ Stability on rename (30), readability in URLs and logs (30), simplicity (25), UR
 ## Consequences
 
 - Renaming retro-shmup changes nothing on the board.
-- A new game version must be published to the verifier (ADR-0001) and allowlisted before its runs
+- A new game version must be tagged as a signed release, built by the verifier (ADR-0001) and allowlisted before its runs
   can be verified; runs of an unknown version are refused with `400 unknown-version`.

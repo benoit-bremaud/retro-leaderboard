@@ -30,8 +30,9 @@ flowchart LR
     player --> game
     game -->|"submit, read boards, erase"| api
     api --> d1
-    verifier -->|"pull pending runs, post verdicts"| api
-    owner -->|"moderate, add games (PR)"| api
+    verifier -->|"pull pending runs, post reports"| api
+    owner -->|"add games (PR)"| api
+    owner -->|"moderate (wrangler d1 execute)"| d1
 ```
 
 ## How to read this folder

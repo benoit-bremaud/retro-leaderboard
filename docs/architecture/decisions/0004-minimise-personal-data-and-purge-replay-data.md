@@ -28,8 +28,10 @@ Data minimisation (35), value to the player (30), auditability (15), simplicity 
 ## Decision
 
 **A with the top-100 exception**, an owner override of the top-scored A (445 vs 465): the best runs
-stay re-verifiable after a verifier bug fix and can later be watched as a replay, a stated purpose
-that justifies keeping them.
+keep their replay data so they can later be watched as a replay and re-verified after a verifier
+bug fix, a stated purpose that justifies keeping them. Re-verification and replay viewing are
+future bricks with their own ADR; until then no transition re-verifies a run. A run purged outside
+the top 100 that later rises into it stays on the board without replay data.
 
 1. **Lawful basis**: legitimate interest (GDPR art. 6(1)(f)), chosen by the owner on 2026-11-12
    (MCDA 430, over performance of a service 330 and consent 210). Publishing is optional and
@@ -56,7 +58,9 @@ that justifies keeping them.
    `wrangler d1 execute`.
 7. **Privacy notice**: a short page served by the Worker (`GET /privacy`) and linked from each
    game's submit screen: controller, purpose, lawful basis and the legitimate interest, data,
-   retention, recipients (Cloudflare as processor, D1 in the EU jurisdiction), rights (access,
+   retention, recipients (Cloudflare as processor, D1 in the EU jurisdiction), transfers outside the EU
+   (requests handled at any Cloudflare edge location; Cloudflare Inc. under the EU-US Data Privacy
+   Framework and standard contractual clauses), rights (access,
    erasure, objection, complaint to the CNIL), contact. Submission is an explicit action of the
    player (a "Send online" choice), never automatic.
 8. Logs carry run ids and error codes only, never names or addresses; invocation logs are disabled

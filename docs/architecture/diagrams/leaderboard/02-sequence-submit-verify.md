@@ -20,7 +20,7 @@ sequenceDiagram
     participant RL as Rate limiter
     participant DB as D1
     participant V as Verifier (homelab)
-    participant S as Game simulation package
+    participant S as Game simulation (built from the signed tag)
 
     P->>G: choose "Send online" after the run
     G->>W: POST /v1/runs (game, mode, version, seed, inputs, claimed score, name, country)
@@ -49,23 +49,27 @@ sequenceDiagram
 
     loop every minute (systemd timer)
         V->>W: GET /v1/verifier/pending (bearer token)
-        W->>DB: select oldest pending runs (limit 20), increment attempts
-        Note over W,DB: a run at 3 attempts becomes unverifiable instead
-        DB-->>W: runs
-        W-->>V: runs
-        loop each run, one at a time
+        loop until no pending run, one run at a time
+        W->>DB: select the oldest pending run, increment its attempts
+        Note over W,DB: a run at 3 attempts becomes unverifiable (verdictAt = now) instead
+        DB-->>W: run
+        W-->>V: run
             alt game version installed
                 V->>S: replay(seed, inputs) in a sandboxed child process
                 S-->>V: replayed score, or replay-error
             else version missing
                 V->>V: report = version-missing
             end
-            V->>W: POST /v1/verifier/verdicts (run id, report)
+            V->>W: POST /v1/verifier/reports (run id, report)
             W->>W: verdict from report and claimed score
             W->>DB: update run if still pending
             W-->>V: 204, or 404 unknown or deleted, or 409 not pending
         end
     end
+
+    G->>W: GET /v1/runs/{id}
+    W->>DB: select status
+    W-->>G: 200 {status}, or 404 unknown or deleted
 
     P->>G: open the online board
     G->>W: GET /v1/boards/{game}/{mode}?period=all
@@ -77,8 +81,9 @@ sequenceDiagram
 ## Notes
 
 - `202 Accepted`, not `201`: the run exists but is not on the board yet.
-- The verifier posts a verdict per run, so a crash mid-batch loses at most one replay; a run with
-  no verdict stays `pending` and comes back next tick.
+- The verifier pulls and reports one run at a time, so an outage costs at most one attempt to one
+  run; a run with no report stays `pending` and comes back next tick, three times at most.
+- `GET /v1/runs/{id}` returns the status only: no name or score while the run is pending.
 - A report for an unknown or deleted run answers `404`; for a run that is no longer `pending`
   (expired, already decided) `409`. The verifier logs both and moves on.
 - The Worker, not the verifier, compares the scores: the verifier token can only report what the

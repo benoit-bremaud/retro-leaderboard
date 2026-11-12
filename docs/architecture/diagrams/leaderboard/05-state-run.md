@@ -21,9 +21,9 @@ stateDiagram-v2
     Pending --> Verified : report [replayed score = claimed]
     Pending --> Rejected : report [scores differ or replay-error]
     Pending --> Unverifiable : report [version-missing]
-    Pending --> Unverifiable : pull [attempts = 3]
+    Pending --> Unverifiable : pull [attempts = 3] / verdictAt = now
     Pending --> Expired : daily job [7 days after submittedAt] / verdictAt = now, purge replay data
-    Verified --> Verified : daily job [90 days and not top 100] / purge replay data
+    Verified --> Verified : daily job [90 days ≤ age < 2 years and not top 100 and seed not NULL] / purge replay data
     Verified --> Verified : owner sets hidden (wrangler d1 execute)
     Verified --> [*] : daily job [2 years and not top 100] / erase row
     Rejected --> [*] : daily job [7 days after verdictAt] / erase row

@@ -67,8 +67,9 @@ classDiagram
 
 - `id` is a ULID: sortable by time, no counter to leak volume. It is public (board rows carry it);
   erasure needs the deletion token, not the id.
-- `runDigest` = SHA-256(gameId ‖ mode ‖ gameVersion ‖ seed ‖ inputs): the same run cannot be
-  submitted twice under different names.
+- `runDigest` = SHA-256(gameId ‖ mode ‖ gameVersion ‖ seed ‖ canonical inputs), where the inputs
+  are re-encoded by the run codec after decoding: a byte-identical run cannot be submitted twice.
+  A copy with one changed but harmless frame still passes; that near-duplicate risk is accepted.
 - The monthly board filters `submitted_at` on the current UTC month.
 - Purge (ADR-0004) sets `seed` and `inputs` to NULL and keeps `runDigest`; a purged run keeps its
   board row until the two-year retention ends.

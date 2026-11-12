@@ -27,7 +27,8 @@ C is rejected outright: the key would ship in the client, so the signature prove
 
 ## Decision
 
-1. **Rate limits** (binding, 60 s window): `POST /v1/runs` 5 per key, read routes 60 per key,
+1. **Rate limits** (binding, 60 s window): `POST /v1/runs` 5 per key, read routes (`GET /v1/boards/{game}/{mode}`, `GET /v1/runs/{id}`) 60
+   per key,
    `DELETE /v1/runs/{id}` 5 per key. Over the limit: `429` with `Retry-After`.
 2. **Key** = SHA-256(client address ‖ daily salt) as hex, with daily salt =
    HMAC-SHA-256(`RATE_KEY_SECRET`, current UTC date). The secret is a Worker secret rotated yearly;
@@ -46,7 +47,7 @@ C is rejected outright: the key would ship in the client, so the signature prove
    route exists, so no admin secret can leak; the verifier token cannot moderate.
 6. **CORS**: only the games' origins (allowlist per game); no credentials.
 7. **Logs**: Workers invocation logs are disabled in the Worker configuration
-   (`observability.logs.invoke_logs = false`), so request URLs and headers are never recorded;
+   (`observability.logs.invocation_logs = false`), so request URLs and headers are never recorded;
    the code logs run ids and error codes only.
 8. A challenge widget (Turnstile) is added only by a superseding ADR, after an abuse the
    measures above did not stop.

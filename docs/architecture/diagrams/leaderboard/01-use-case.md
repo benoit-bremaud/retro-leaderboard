@@ -49,7 +49,7 @@ flowchart LR
 | UC3 | Remove my run and my name from the board | Player | The game sends the run id and the deletion token kept at UC1; the service erases the row | Wrong token → `404` (same answer as an unknown id); lost token → contact the owner |
 | UC4 | Turn pending runs into verdicts | Verifier | Every minute the verifier pulls pending runs, replays each at its game version and posts a report (replayed score, `replay-error` or `version-missing`); the Worker sets the verdict | Service unreachable → retry next tick; replay crash or ceiling hit → `rejected`; three pulls without a report → `unverifiable`; run deleted meanwhile → `404` |
 | UC5 | Take an offensive or abusive run off the board | Owner | The owner sets `hidden = 1` on the run by id with `wrangler d1 execute` (no admin HTTP route, ADR-0003) | Run unknown → no row changed |
-| UC6 | Let a new game or a new version submit runs | Owner | The owner adds it to the allowlist (`src/games.ts`) and publishes its simulation package to the verifier, through a gated PR | — |
+| UC6 | Let a new game or a new version submit runs | Owner | The owner adds it to the allowlist (`src/games.ts`) and tags a signed release the verifier builds its simulation from, through a gated PR | — |
 
 ## Notes
 
