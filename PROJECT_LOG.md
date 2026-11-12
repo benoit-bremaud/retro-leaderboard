@@ -14,11 +14,21 @@ Chronological operational log of the project, complementing `git log` with the d
 
 ## 2026-11-12 — Conception study merged (#1, PR #2, 783317d)
 
-- Owner MCDA decisions: verification by replay on the homelab (D, 365, owner override of Workers
-  Paid A 425 for zero cost), D1 (480), rate limits + salted hash + guards without Turnstile (465),
-  replay purge at 90 days except top 100 (445, owner override), game id = slug + mode + semver
-  (500), lawful basis = legitimate interest (430), score rows kept 2 years outside top 100 (420),
-  client-chosen seed risk accepted (420).
+- **PR #2 merged** (`783317d`) — docs(uml): conception study of the shared leaderboard API, branch
+  `docs/1-leaderboard-conception-study`.
+- Owner MCDA decisions (AskUserQuestion in the session, recorded in the ADRs):
+  - `verification` — replay on the homelab, D 365 over Workers Paid A 425: zero recurring cost
+    (owner override, ADR-0001).
+  - `storage` — D1 480 over a Durable Object 395 (ADR-0002).
+  - `abuse` — rate limits + salted hash + guards 465 over adding Turnstile 370 (ADR-0003).
+  - `replay purge` — 90 days except top 100, 445 over plain 90 days 465: re-verification and
+    replay viewing later (owner override, ADR-0004).
+  - `game id` — stable slug + mode + semver 500 over the repository name 410 (ADR-0005).
+  - `lawful basis` — legitimate interest 430 over performance of a service 330 and consent 210
+    (ADR-0004).
+  - `score retention` — two years outside top 100, 420 over two years always 380 (ADR-0004).
+  - `seed` — client-chosen seed risk accepted, 420 over a server-issued seed 285: games stay
+    playable offline (ADR-0001 Consequences, no score recorded there).
 - Agent choices recorded in the ADRs: no admin HTTP route (moderation with `wrangler d1 execute`),
   simulations built from signed game tags instead of a package registry.
 - Adversarial review (Opus), three rounds: 9 Must → 2 Must → 0 Must; `just gate` green and
